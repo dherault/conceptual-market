@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "start": "node backend/index.ts",
+    "start": "cd backend && npm start",
     "prepare": "husky"
   },
   "devDependencies": {
