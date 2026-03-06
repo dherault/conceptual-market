@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { GOOGLE_GEN_AI_MODEL } from './constants.ts'
 import createEntityId from './createEntityId.ts'
 import getGoogleGenAiClient from './getGoogleGenAiClient.ts'
-import type { NewsArticleWithEntities } from './types.ts'
+import type { ArticleWithEntitiesWithScore } from './types.ts'
 
 const SCHEMA = z.array(
   z.object({
@@ -18,12 +18,12 @@ const SCHEMA = z.array(
   }),
 ).describe('The list of articles with their entities.')
 
-async function generateEntitiesMetadatas(newsArticlesWithEntities: NewsArticleWithEntities[]): Promise<NewsArticleWithEntities[]> {
+async function generateEntitiesMetadatas(articlesWithEntitiesWithScore: ArticleWithEntitiesWithScore[]): Promise<ArticleWithEntitiesWithScore[]> {
   const googleGenAiClient = await getGoogleGenAiClient()
 
-  const newsArticlesWithIncompleteEntities = newsArticlesWithEntities.filter(article => article.entities.some(entity => !entity.wikipediaUrl))
+  const articlesWithIncompleteEntities = articlesWithEntitiesWithScore.filter(article => article.scoredEntities.some(entity => !entity.wikipediaUrl))
 
-  if (!newsArticlesWithIncompleteEntities.length) return newsArticlesWithIncompleteEntities
+  if (!articlesWithIncompleteEntities.length) return articlesWithEntitiesWithScore
 
   const response = await googleGenAiClient.models.generateContent({
     model: GOOGLE_GEN_AI_MODEL,
@@ -37,17 +37,17 @@ Do not add more entities than the ones provided.
 # Data
 The string after "##" is the ID of the article.
 
-${newsArticlesWithIncompleteEntities.map(newsArticle => `
-## ${newsArticle.id}
+${articlesWithIncompleteEntities.map(article => `
+## ${article.id}
 
 ### Content
 \`\`\`
-${newsArticle.title}
-${newsArticle.text}
+${article.title}
+${article.text}
 \`\`\`
 
 ### Entities
-${newsArticle.entities.map(entity => `
+${article.scoredEntities.map(entity => `
 - id: ${entity.id}
   name: ${entity.name}
   wikipediaUrl: ${entity.wikipediaUrl ?? 'N/A'}
@@ -62,14 +62,14 @@ ${newsArticle.entities.map(entity => `
 
   const data = response.text ? SCHEMA.parse(JSON.parse(response.text)) : []
 
-  return newsArticlesWithEntities.map(newsArticle => {
-    const articleData = data.find(x => x.id === newsArticle.id)
+  return articlesWithEntitiesWithScore.map(article => {
+    const articleData = data.find(x => x.id === article.id)
 
-    if (!articleData) return newsArticle
+    if (!articleData) return article
 
     return {
-      ...newsArticle,
-      entities: newsArticle.entities.map(entity => {
+      ...article,
+      scoredEntities: article.scoredEntities.map(entity => {
         const entityData = articleData.entities.find(e => e.id === entity.id)
 
         if (!entityData) return entity

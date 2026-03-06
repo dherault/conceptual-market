@@ -1,24 +1,10 @@
 import slugify from 'slugify'
 
-import type { NewsArticle } from './types.ts'
+import type { Article, RssFeed } from './types.ts'
 
-function extractTextFromXml(xml: string, tag: string): string | null {
-  // Match CDATA content
-  const cdataMatch = xml.match(new RegExp(`<${tag}[^>]*><\\!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`, 's'))
-
-  if (cdataMatch) return cdataMatch[1].trim()
-
-  // Fallback to plain text
-  const plainMatch = xml.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`, 's'))
-
-  if (plainMatch) return plainMatch[1].trim()
-
-  return null
-}
-
-async function fetchRssFeed(url: string): Promise<NewsArticle[]> {
+async function fetchRssFeed(rssFeed: RssFeed): Promise<Article[]> {
   try {
-    const response = await fetch(url)
+    const response = await fetch(rssFeed.url)
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
@@ -39,34 +25,48 @@ async function fetchRssFeed(url: string): Promise<NewsArticle[]> {
 
     if (items.length === 0) return []
 
-    const newsArticles = items.flatMap<NewsArticle>(match => {
+    return items.flatMap<Article>(match => {
       const itemXml = match[1]
-      const title = extractTextFromXml(itemXml, 'title')
-      const url = extractTextFromXml(itemXml, 'link')
-      const publishedAt = extractTextFromXml(itemXml, 'pubDate') || extractTextFromXml(itemXml, 'published')
+      const articleTitle = extractTextFromXml(itemXml, 'title')
+      const articleUrl = extractTextFromXml(itemXml, 'link')
+      const articlePublishedAt = extractTextFromXml(itemXml, 'pubDate') || extractTextFromXml(itemXml, 'published')
 
-      if (!(title && url && publishedAt)) return []
+      if (!(articleTitle && articleUrl && articlePublishedAt)) return []
 
-      const id = slugify(url, { lower: true, strict: true })
+      const id = slugify(articleUrl, { lower: true, strict: true })
 
       return [
         {
           id,
-          title,
-          url,
-          publishedAt: new Date(publishedAt).toISOString(),
+          rssFeedUrl: rssFeed.url,
+          rssFeedName: rssFeed.name,
+          title: articleTitle,
+          url: articleUrl,
+          publishedAt: new Date(articlePublishedAt).toISOString(),
           text: '',
         },
       ]
     })
-
-    return newsArticles
   }
   catch (error) {
-    console.error(`Error parsing RSS feed from ${url}:`, error)
+    console.error(`Error parsing RSS feed from ${rssFeed.url}:`, error)
 
     return []
   }
+}
+
+function extractTextFromXml(xml: string, tag: string): string | null {
+  // Match CDATA content
+  const cdataMatch = xml.match(new RegExp(`<${tag}[^>]*><\\!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`, 's'))
+
+  if (cdataMatch) return cdataMatch[1].trim()
+
+  // Fallback to plain text
+  const plainMatch = xml.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`, 's'))
+
+  if (plainMatch) return plainMatch[1].trim()
+
+  return null
 }
 
 export default fetchRssFeed

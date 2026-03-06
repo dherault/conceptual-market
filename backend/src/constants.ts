@@ -1,6 +1,6 @@
-import type { NewRssFeed } from './types'
+import type { RssFeed } from './types'
 
-export const RSS_FEEDS: NewRssFeed[] = [
+export const RSS_FEEDS: RssFeed[] = [
   {
     name: 'Yahoo News - Most Viewed',
     url: 'https://news.yahoo.com/rss/mostviewed',
@@ -24,3 +24,5 @@ export const RSS_FEEDS: NewRssFeed[] = [
 ]
 
 export const GOOGLE_GEN_AI_MODEL = 'gemini-2.5-flash-lite'
+
+export const SALIENCE_THRESHOLD = 0.05

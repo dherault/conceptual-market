@@ -1,19 +1,21 @@
 import { LanguageServiceClient } from '@google-cloud/language'
 import slugify from 'slugify'
 
-import type { Entity, NewsArticle } from './types.ts'
+import { SALIENCE_THRESHOLD } from './constants.ts'
+import countWords from './countWords.ts'
+import type { Article, ScoredEntity } from './types.ts'
 
 const client = new LanguageServiceClient()
 
-const SALIENCE_THRESHOLD = 0.05
-
-async function analyseNewsArticleEntities(newArticle: NewsArticle): Promise<Entity[]> {
+async function analyseArticleEntities(article: Article): Promise<ScoredEntity[]> {
   const [result] = await client.analyzeEntities({
     document: {
       type: 'PLAIN_TEXT',
-      content: newArticle.text,
+      content: article.text,
     },
   })
+
+  const articleWordCount = countWords(article.text)
 
   return result.entities
     ?.filter(entity => (entity.salience ?? 0) >= SALIENCE_THRESHOLD)
@@ -21,19 +23,18 @@ async function analyseNewsArticleEntities(newArticle: NewsArticle): Promise<Enti
       if (!entity.name) return []
 
       const mentionRegex = new RegExp(`\\b${entity.name}\\b`, 'g')
-      const mentions = newArticle.text.match(mentionRegex) ?? []
+      const mentions = article.text.match(mentionRegex) ?? []
 
       return [
         {
-          // Temporary ID
-          id: slugify(`${entity.type ?? 'UNKNOWN'}_${entity.name}`, { lower: true, strict: true }),
+          id: slugify(`${entity.type ?? 'UNKNOWN'}_${entity.name}`), // Temporary id
           name: entity.name,
           wikipediaUrl: entity.metadata?.wikipedia_url ?? '',
-          magnitude: mentions.length,
+          magnitude: mentions.length / articleWordCount,
           salience: entity.salience ?? 0,
         },
       ]
     }) ?? []
 }
 
-export default analyseNewsArticleEntities
+export default analyseArticleEntities
