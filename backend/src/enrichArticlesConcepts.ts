@@ -11,7 +11,7 @@ const SCHEMA = z.array(
     concepts: z.array(
       z.object({
         id: z.string().describe('The ID of the concept'),
-        name: z.string().describe('The name of the concept').nullable(),
+        name: z.string().describe('The full name of the concept with proper capitalization').nullable(),
         wikipediaUrl: z.url().describe('The Wikipedia URL of the concept').nullable(),
       }),
     ).describe('The list of concepts in the article.'),

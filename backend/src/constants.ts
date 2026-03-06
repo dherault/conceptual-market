@@ -30,4 +30,4 @@ export const RSS_FEEDS: RssFeed[] = [
 
 export const GOOGLE_GEN_AI_MODEL = 'gemini-2.5-flash-lite'
 
-export const SALIENCE_THRESHOLD = 0.025
+export const SALIENCE_THRESHOLD = 0.01
