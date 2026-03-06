@@ -1,0 +1,12 @@
+{
+  "name": "conceptual-market-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "emulators": "mkdir -p emulators-data/current-export && firebase emulators:start --only auth,firestore --import=./emulators-data/current-export --export-on-exit=./emulators-data/current-export",
+    "kill": "npm run kill:app && npm run kill:emulators",
+    "kill:app": "kill -9 $(lsof -t -i:5173) 2>/dev/null || true",
+    "kill:emulators": "kill -9 $(lsof -t -i:8080) $(lsof -t -i:9099) $(lsof -t -i:9199) 2>/dev/null || true"
+  }
+}

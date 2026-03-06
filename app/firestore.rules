@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdministrator() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdministrator == true;
+    }
+
+    function hasCommonKeys() {
+      return request.resource.data.keys().hasAll([
+        'id',
+        'userId',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+      ]);
+    }
+
+    function hasUserIdKey() {
+      return request.resource.data.userId == request.auth.uid;
+    }
+
+    function isNotAffectingProtectedKeys() {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+        // Common
+        'id',
+        'createdAt',
+        'userId',
+        // User
+        'isAdministrator',
+      ]);
+    }
+
+    match /users/{userId} {
+      allow get: if isAdministrator() || request.auth.uid == userId;
+      allow list: if isAdministrator() || request.query.limit <= 1; // For Authentication
+      allow create: if request.auth.uid == userId && request.resource.data.isAdministrator == false && hasCommonKeys();
+      allow update: if request.auth.uid == userId && isNotAffectingProtectedKeys();
+    }
+
+  }
+}
