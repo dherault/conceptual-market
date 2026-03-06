@@ -25,6 +25,8 @@ async function fetchRssFeed(rssFeed: RssFeed): Promise<Article[]> {
 
     if (items.length === 0) return []
 
+    const now = new Date().toISOString()
+
     return items.flatMap<Article>(match => {
       const itemXml = match[1]
       const articleTitle = extractTextFromXml(itemXml, 'title')
@@ -38,12 +40,15 @@ async function fetchRssFeed(rssFeed: RssFeed): Promise<Article[]> {
       return [
         {
           id,
-          rssFeedUrl: rssFeed.url,
-          rssFeedName: rssFeed.name,
+          rssFeedId: rssFeed.id,
           title: articleTitle,
           url: articleUrl,
           publishedAt: new Date(articlePublishedAt).toISOString(),
           text: '',
+          userId: null,
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
         },
       ]
     })
