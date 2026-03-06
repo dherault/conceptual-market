@@ -9,10 +9,10 @@ export const RSS_FEEDS: NewRssFeed[] = [
     name: 'CNN - Top Stories',
     url: 'http://rss.cnn.com/rss/cnn_topstories.rss',
   },
-  {
-    name: 'The Washington Post - Politics',
-    url: 'https://www.washingtonpost.com/arcio/rss/category/politics/',
-  },
+  // {
+  //   name: 'The Washington Post - Politics',
+  //   url: 'https://www.washingtonpost.com/arcio/rss/category/politics/',
+  // },
   {
     name: 'NPR - News',
     url: 'https://feeds.npr.org/1001/rss.xml',
@@ -22,3 +22,5 @@ export const RSS_FEEDS: NewRssFeed[] = [
     url: 'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml',
   },
 ]
+
+export const GOOGLE_GEN_AI_MODEL = 'gemini-2.5-flash-lite'

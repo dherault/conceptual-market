@@ -1,14 +1,21 @@
 import 'dotenv/config'
 
 import fetchNewsArticles from './fetchNewsArticles.ts'
-// import invokeEntities from './invokeEntities.ts'
+import processNewsArticles from './processNewsArticles.ts'
 
-console.log('Starting oracle...')
+try {
+  console.log('Starting oracle...')
 
-const newsArticles = await fetchNewsArticles(30 * 24 * 60 * 60 * 1000, 25)
+  const newsArticles = await fetchNewsArticles(30 * 24 * 60 * 60 * 1000, 2)
 
-console.log(`Fetched ${newsArticles.length} news articles.`)
+  console.log(newsArticles.length, 'articles fetched')
 
-// const entities = await invokeEntities(newsArticles)
+  const newsArticlesWithEntities = await processNewsArticles(newsArticles)
 
-// console.log('entities', JSON.stringify(entities, null, 2))
+  console.log(JSON.stringify(newsArticlesWithEntities, null, 2))
+}
+catch (error) {
+  console.error('Error in oracle', error)
+
+  process.exit(1)
+}

@@ -10,3 +10,15 @@ export type NewsArticle = {
   publishedAt: string // ISO
   text: string
 }
+
+export type Entity = {
+  id: string
+  name: string
+  wikipediaUrl: string
+  magnitude: number
+  salience: number
+}
+
+export type NewsArticleWithEntities = NewsArticle & {
+  entities: Entity[]
+}
