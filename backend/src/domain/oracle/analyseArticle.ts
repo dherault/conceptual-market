@@ -1,14 +1,15 @@
-import { LanguageServiceClient } from '@google-cloud/language'
+import type { Article, Concept } from 'conceptual-market-core'
 import slugify from 'slugify'
 
-import { SALIENCE_THRESHOLD } from './constants.ts'
-import countWords from './countWords.ts'
-import type { Article, Concept, ConceptScore, ScoredConcept } from './types.ts'
+import type { ConceptScore, ScoredConcept } from '~types'
 
-const client = new LanguageServiceClient()
+import { SALIENCE_THRESHOLD } from '~constants'
+
+import getGoogleLanguageClient from '~domain/clients/getGoogleLanguageClient'
+import countWords from '~domain/oracle/countWords'
 
 async function analyseArticle(article: Article): Promise<ScoredConcept[]> {
-  const [result] = await client.analyzeEntities({
+  const [result] = await getGoogleLanguageClient().analyzeEntities({
     document: {
       type: 'PLAIN_TEXT',
       content: article.text,

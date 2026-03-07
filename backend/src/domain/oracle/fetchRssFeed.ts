@@ -1,6 +1,5 @@
+import type { Article, RssFeed } from 'conceptual-market-core'
 import slugify from 'slugify'
-
-import type { Article, RssFeed } from './types.ts'
 
 async function fetchRssFeed(rssFeed: RssFeed): Promise<Article[]> {
   try {

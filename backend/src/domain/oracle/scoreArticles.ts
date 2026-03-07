@@ -1,6 +1,9 @@
-import analyseArticle from './analyseArticle.ts'
-import enrichArticlesConcepts from './enrichArticlesConcepts.ts'
-import type { Article, ScoredArticle, ScoredConcept } from './types.ts'
+import type { Article } from 'conceptual-market-core'
+
+import type { ScoredArticle, ScoredConcept } from '~types'
+
+import analyseArticle from '~domain/oracle/analyseArticle'
+import enrichArticlesConcepts from '~domain/oracle/enrichArticlesConcepts'
 
 async function scoreArticles(articles: Article[]): Promise<ScoredArticle[]> {
   // Analyse Concepts for every Article

@@ -1,33 +1,48 @@
-import type { RssFeed } from './types'
+/* ---
+  MODE
+--- */
 
-export const RSS_FEEDS: RssFeed[] = [
-  {
-    id: 'yahoo-most-viewed',
-    name: 'Yahoo News - Most Viewed',
-    url: 'https://news.yahoo.com/rss/mostviewed',
-  },
-  {
-    id: 'cnn-top-stories',
-    name: 'CNN - Top Stories',
-    url: 'http://rss.cnn.com/rss/cnn_topstories.rss',
-  },
-  // {
-  //   id: 'washington-post-politics',
-  //   name: 'The Washington Post - Politics',
-  //   url: 'https://www.washingtonpost.com/arcio/rss/category/politics',
-  // },
-  {
-    id: 'npr-news',
-    name: 'NPR - News',
-    url: 'https://feeds.npr.org/1001/rss.xml',
-  },
-  {
-    id: 'bbc-us-canada',
-    name: 'BBC News - US & Canada',
-    url: 'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml',
-  },
-]
+export const IS_LOCAL = !!process.env.IS_LOCAL
+
+export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
+
+export const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+
+/* ---
+  ARCHITECTURE
+--- */
+
+export const GOOGLE_CLOUD_PROJECT_ID = 'conceptual-market'
+
+export const GOOGLE_CLOUD_LOCATION = 'us-central1'
+
+export const INTERNAL_AUTHENTICATION_HEADER = 'X-Internal-Api-Key'
+
+/* ---
+  SECRETS
+--- */
+
+export const SECRET_FIREBASE_SERVICE_ACCOUNT_KEY = 'firebase-service-account-key'
+
+export const SECRET_INTERNAL_AUTHENTICATION_API_KEY = 'internal-authentication-api-key'
+
+export const SECRET_GOOGLE_AI_API_KEY = 'google-ai-api-key'
+
+/* ---
+  AI
+--- */
 
 export const GOOGLE_GEN_AI_MODEL = 'gemini-2.5-flash-lite'
+
+// The first array item is the default model
+export const GOOGLE_GEN_AI_TEXT_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-pro', 'gemini-3-flash-preview', 'gemini-3.1-pro-preview'] as const
+
+export const MODELS = [
+  ...GOOGLE_GEN_AI_TEXT_MODELS,
+] as const
+
+/* ---
+  ORACLE
+--- */
 
 export const SALIENCE_THRESHOLD = 0.01

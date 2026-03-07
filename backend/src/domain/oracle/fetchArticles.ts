@@ -1,9 +1,8 @@
+import { type Article, RSS_FEEDS } from 'conceptual-market-core'
 // @ts-ignore
 import extractor from 'unfluff'
 
-import { RSS_FEEDS } from './constants.ts'
-import fetchRssFeed from './fetchRssFeed.ts'
-import type { Article } from './types.ts'
+import fetchRssFeed from '~domain/oracle/fetchRssFeed'
 
 const FETCH_BATCH_SIZE = 25
 

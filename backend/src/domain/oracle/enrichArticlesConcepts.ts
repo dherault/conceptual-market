@@ -1,9 +1,12 @@
+import type { Concept } from 'conceptual-market-core'
 import { z } from 'zod'
 
-import { GOOGLE_GEN_AI_MODEL } from './constants.ts'
-import createConceptId from './createConceptId.ts'
-import getGoogleGenAiClient from './getGoogleGenAiClient.ts'
-import type { Concept, ScoredArticle } from './types.ts'
+import type { ScoredArticle } from '~types'
+
+import { GOOGLE_GEN_AI_TEXT_MODELS } from '~constants'
+
+import { generateContentWithAiGateway } from '~domain/ai/invokeWithAiGateway'
+import createConceptId from '~domain/oracle/createConceptId'
 
 const SCHEMA = z.array(
   z.object({
@@ -19,15 +22,15 @@ const SCHEMA = z.array(
 ).describe('The list of articles with their concepts.')
 
 async function enrichArticlesConcepts(scoredArticles: ScoredArticle[]): Promise<ScoredArticle[]> {
-  const googleGenAiClient = await getGoogleGenAiClient()
-
   const incompleteScoredArticles = scoredArticles.filter(scoredArticle => scoredArticle.scoredConcepts.some(scoredConcept => !scoredConcept.concept.wikipediaUrl))
 
   if (!incompleteScoredArticles.length) return scoredArticles
 
-  const response = await googleGenAiClient.models.generateContent({
-    model: GOOGLE_GEN_AI_MODEL,
-    contents: `
+  const { response } = await generateContentWithAiGateway(
+    GOOGLE_GEN_AI_TEXT_MODELS,
+    model => ({
+      model,
+      contents: `
 # Goal
 You are given a list of news articles along with the concepts mentioned in these articles.
 For every concept, you have to determine its full name with proper capitalization and its English Wikipedia URL.
@@ -54,11 +57,12 @@ ${scoredConcepts.map(({ concept }) => `
 `).join('\n')}
 `)}
 `,
-    config: {
-      responseMimeType: 'application/json',
-      responseJsonSchema: z.toJSONSchema(SCHEMA),
-    },
-  })
+      config: {
+        responseMimeType: 'application/json',
+        responseJsonSchema: z.toJSONSchema(SCHEMA),
+      },
+    }),
+  )
 
   const data = response.text ? SCHEMA.parse(JSON.parse(response.text)) : []
 

@@ -1,31 +1,49 @@
-export type DatabaseResource<T = unknown> = T & {
-  id: string
-  userId: string | null
-  createdAt: string
-  updatedAt: string
-  deletedAt: string | null
+import type { Article, Concept, User } from 'conceptual-market-core'
+
+import type { MODELS } from '~constants'
+
+/* ---
+  EXPRESS REQUEST AUGMENTATION
+--- */
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: User
+  }
 }
 
-export type RssFeed = {
-  id: string
-  name: string
-  url: string
+/* ---
+  API RESPONSES
+--- */
+
+export interface SuccessResponse<T = void> {
+  status: 'success'
+  data?: T
 }
 
-export type Article = DatabaseResource<{
-  id: string
-  title: string
-  url: string
-  publishedAt: string // ISO
-  rssFeedId: string
-  text: string
-}>
+export interface ErrorResponse {
+  status: 'error'
+  code: string
+  message: string
+}
 
-export type Concept = DatabaseResource<{
-  id: string
-  name: string
-  wikipediaUrl: string
-}>
+export type ApiResponsePayload<T = void> = SuccessResponse<T> | ErrorResponse
+
+export type ApiResponse<T = void> = {
+  status(code: number): ApiResponse<T>
+  json(body: ApiResponsePayload<T>): void
+  send(body: ApiResponsePayload<T>): void
+}
+
+/* ---
+  AI
+--- */
+
+export type Model = typeof MODELS[number]
+
+/* ---
+  ORACLE
+--- */
 
 export type ConceptScore = {
   magnitude: number
